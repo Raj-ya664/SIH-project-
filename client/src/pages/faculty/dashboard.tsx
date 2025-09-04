@@ -42,7 +42,10 @@ export default function FacultyDashboard() {
                 <Bell className="mr-2" size={16} />
                 Notifications
               </Button>
-              <Button variant="outline" size="sm" onClick={() => authService.logout()}>
+              <Button variant="outline" size="sm" onClick={() => {
+                authService.logout();
+                window.location.href = "/";
+              }}>
                 Logout
               </Button>
             </div>

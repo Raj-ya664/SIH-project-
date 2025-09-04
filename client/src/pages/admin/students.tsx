@@ -1,4 +1,13 @@
 import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,8 +17,73 @@ import { Plus, Search, Download, Upload, Edit, Trash2 } from "lucide-react";
 import AdminLayout from "@/components/layout/admin-layout";
 import { useQuery } from "@tanstack/react-query";
 
+const addStudentSchema = z.object({
+  rollNo: z.string().min(1, "Roll number is required"),
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address").optional(),
+  program: z.string().min(1, "Program is required"),
+  semester: z.coerce.number().min(1).max(8),
+  totalCredits: z.coerce.number().min(0).max(30).default(0),
+  section: z.string().min(1, "Section is required"),
+  preferences: z.object({
+    majors: z.array(z.string()).default([]),
+    minors: z.array(z.string()).default([]),
+    skills: z.array(z.string()).default([]),
+    aec: z.array(z.string()).default([]),
+    vac: z.array(z.string()).default([])
+  }).default({})
+});
+
 export default function AdminStudents() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const form = useForm<z.infer<typeof addStudentSchema>>({
+    resolver: zodResolver(addStudentSchema),
+    defaultValues: {
+      rollNo: "",
+      name: "",
+      email: "",
+      program: "",
+      semester: 1,
+      totalCredits: 0,
+      section: "",
+      preferences: {
+        majors: [],
+        minors: [],
+        skills: [],
+        aec: [],
+        vac: []
+      }
+    }
+  });
+
+  const addStudentMutation = useMutation({
+    mutationFn: (data: z.infer<typeof addStudentSchema>) => 
+      apiRequest("POST", "/api/students", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/students"] });
+      setIsAddDialogOpen(false);
+      form.reset();
+      toast({
+        title: "Success",
+        description: "Student added successfully!"
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add student. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const onSubmit = (data: z.infer<typeof addStudentSchema>) => {
+    addStudentMutation.mutate(data);
+  };
   
   const { data: students, isLoading } = useQuery({
     queryKey: ["/api/students"],
@@ -55,10 +129,145 @@ export default function AdminStudents() {
               <Download className="mr-2" size={16} />
               Export
             </Button>
-            <Button data-testid="button-add-student">
-              <Plus className="mr-2" size={16} />
-              Add Student
-            </Button>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button data-testid="button-add-student">
+                  <Plus className="mr-2" size={16} />
+                  Add Student
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Add New Student</DialogTitle>
+                  <DialogDescription>
+                    Enter student details to add them to the system
+                  </DialogDescription>
+                </DialogHeader>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="rollNo"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Roll Number</FormLabel>
+                            <FormControl>
+                              <Input placeholder="2024001" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Student Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="John Doe" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email (Optional)</FormLabel>
+                            <FormControl>
+                              <Input placeholder="john@student.edu" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="program"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Program</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select program" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="B.Ed.">B.Ed.</SelectItem>
+                                <SelectItem value="M.Ed.">M.Ed.</SelectItem>
+                                <SelectItem value="FYUP">FYUP</SelectItem>
+                                <SelectItem value="ITEP">ITEP</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="semester"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Semester</FormLabel>
+                            <FormControl>
+                              <Input type="number" min="1" max="8" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="totalCredits"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Total Credits</FormLabel>
+                            <FormControl>
+                              <Input type="number" min="0" max="30" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="section"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Section</FormLabel>
+                            <FormControl>
+                              <Input placeholder="A" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="flex justify-end space-x-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setIsAddDialogOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="submit" disabled={addStudentMutation.isPending}>
+                        {addStudentMutation.isPending ? "Adding..." : "Add Student"}
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 

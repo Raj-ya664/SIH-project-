@@ -1,4 +1,14 @@
 import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,9 +18,66 @@ import { Plus, Search, Download, Upload, Edit, Trash2, BookOpen, Clock } from "l
 import AdminLayout from "@/components/layout/admin-layout";
 import { useQuery } from "@tanstack/react-query";
 
+const addCourseSchema = z.object({
+  code: z.string().min(1, "Course code is required"),
+  title: z.string().min(1, "Course title is required"),
+  credits: z.coerce.number().min(1).max(6),
+  type: z.string().min(1, "Course type is required"),
+  theoryHours: z.coerce.number().min(0).default(0),
+  practicalHours: z.coerce.number().min(0).default(0),
+  maxEnrollment: z.coerce.number().min(1).optional(),
+  department: z.string().min(1, "Department is required"),
+  semester: z.coerce.number().min(1).max(8),
+  isElective: z.boolean().default(false)
+});
+
 export default function AdminCourses() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const form = useForm<z.infer<typeof addCourseSchema>>({
+    resolver: zodResolver(addCourseSchema),
+    defaultValues: {
+      code: "",
+      title: "",
+      credits: 1,
+      type: "",
+      theoryHours: 0,
+      practicalHours: 0,
+      maxEnrollment: undefined,
+      department: "",
+      semester: 1,
+      isElective: false
+    }
+  });
+
+  const addCourseMutation = useMutation({
+    mutationFn: (data: z.infer<typeof addCourseSchema>) => 
+      apiRequest("POST", "/api/courses", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/courses"] });
+      setIsAddDialogOpen(false);
+      form.reset();
+      toast({
+        title: "Success",
+        description: "Course added successfully!"
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add course. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const onSubmit = (data: z.infer<typeof addCourseSchema>) => {
+    addCourseMutation.mutate(data);
+  };
   
   const { data: courses, isLoading } = useQuery({
     queryKey: ["/api/courses"],
@@ -72,10 +139,195 @@ export default function AdminCourses() {
               <Download className="mr-2" size={16} />
               Export
             </Button>
-            <Button data-testid="button-add-course">
-              <Plus className="mr-2" size={16} />
-              Add Course
-            </Button>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button data-testid="button-add-course">
+                  <Plus className="mr-2" size={16} />
+                  Add Course
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Add New Course</DialogTitle>
+                  <DialogDescription>
+                    Enter course details to add it to the curriculum
+                  </DialogDescription>
+                </DialogHeader>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="code"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Course Code</FormLabel>
+                            <FormControl>
+                              <Input placeholder="EDU101" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="title"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Course Title</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Foundations of Education" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="credits"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Credits</FormLabel>
+                            <FormControl>
+                              <Input type="number" min="1" max="6" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="theoryHours"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Theory Hours</FormLabel>
+                            <FormControl>
+                              <Input type="number" min="0" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="practicalHours"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Practical Hours</FormLabel>
+                            <FormControl>
+                              <Input type="number" min="0" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="type"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Course Type</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select type" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="Major">Major</SelectItem>
+                                <SelectItem value="Minor">Minor</SelectItem>
+                                <SelectItem value="Skill">Skill</SelectItem>
+                                <SelectItem value="AEC">AEC</SelectItem>
+                                <SelectItem value="VAC">VAC</SelectItem>
+                                <SelectItem value="Lab">Lab</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="department"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Department</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Education" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="semester"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Semester</FormLabel>
+                            <FormControl>
+                              <Input type="number" min="1" max="8" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="maxEnrollment"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Max Enrollment (Optional)</FormLabel>
+                            <FormControl>
+                              <Input type="number" min="1" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="isElective"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>Elective Course</FormLabel>
+                            <p className="text-sm text-muted-foreground">
+                              Check if this is an elective course
+                            </p>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                    <div className="flex justify-end space-x-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setIsAddDialogOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="submit" disabled={addCourseMutation.isPending}>
+                        {addCourseMutation.isPending ? "Adding..." : "Add Course"}
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 

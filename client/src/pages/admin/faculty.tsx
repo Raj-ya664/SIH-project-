@@ -1,4 +1,13 @@
 import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,8 +17,62 @@ import { Plus, Search, Download, Upload, Edit, Trash2, Clock, UserCheck } from "
 import AdminLayout from "@/components/layout/admin-layout";
 import { useQuery } from "@tanstack/react-query";
 
+const addFacultySchema = z.object({
+  employeeId: z.string().min(1, "Employee ID is required"),
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address").optional(),
+  department: z.string().min(1, "Department is required"),
+  expertise: z.array(z.string()).default([]),
+  maxHoursPerWeek: z.coerce.number().min(1).max(40).default(20),
+  currentHours: z.coerce.number().min(0).default(0)
+});
+
 export default function AdminFaculty() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [expertiseInput, setExpertiseInput] = useState("");
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const form = useForm<z.infer<typeof addFacultySchema>>({
+    resolver: zodResolver(addFacultySchema),
+    defaultValues: {
+      employeeId: "",
+      name: "",
+      email: "",
+      department: "",
+      expertise: [],
+      maxHoursPerWeek: 20,
+      currentHours: 0
+    }
+  });
+
+  const addFacultyMutation = useMutation({
+    mutationFn: (data: z.infer<typeof addFacultySchema>) => 
+      apiRequest("POST", "/api/faculty", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/faculty"] });
+      setIsAddDialogOpen(false);
+      form.reset();
+      setExpertiseInput("");
+      toast({
+        title: "Success",
+        description: "Faculty member added successfully!"
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add faculty member. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const onSubmit = (data: z.infer<typeof addFacultySchema>) => {
+    const expertise = expertiseInput.split(',').map(s => s.trim()).filter(s => s.length > 0);
+    addFacultyMutation.mutate({ ...data, expertise });
+  };
   
   const { data: faculty, isLoading } = useQuery({
     queryKey: ["/api/faculty"],
@@ -62,10 +125,131 @@ export default function AdminFaculty() {
               <Download className="mr-2" size={16} />
               Export
             </Button>
-            <Button data-testid="button-add-faculty">
-              <Plus className="mr-2" size={16} />
-              Add Faculty
-            </Button>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button data-testid="button-add-faculty">
+                  <Plus className="mr-2" size={16} />
+                  Add Faculty
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Add New Faculty Member</DialogTitle>
+                  <DialogDescription>
+                    Enter faculty details to add them to the system
+                  </DialogDescription>
+                </DialogHeader>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="employeeId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Employee ID</FormLabel>
+                            <FormControl>
+                              <Input placeholder="FAC001" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Faculty Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Dr. John Smith" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email (Optional)</FormLabel>
+                            <FormControl>
+                              <Input placeholder="john@university.edu" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="department"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Department</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Education" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="maxHoursPerWeek"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Max Hours Per Week</FormLabel>
+                            <FormControl>
+                              <Input type="number" min="1" max="40" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="currentHours"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Current Hours</FormLabel>
+                            <FormControl>
+                              <Input type="number" min="0" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Expertise (comma-separated)</label>
+                      <Textarea
+                        placeholder="Curriculum Development, Educational Technology, Assessment"
+                        value={expertiseInput}
+                        onChange={(e) => setExpertiseInput(e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div className="flex justify-end space-x-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setIsAddDialogOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="submit" disabled={addFacultyMutation.isPending}>
+                        {addFacultyMutation.isPending ? "Adding..." : "Add Faculty"}
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 

@@ -1,4 +1,14 @@
 import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,9 +18,61 @@ import { Plus, Search, Download, Upload, Edit, Trash2, Building, Users, Monitor 
 import AdminLayout from "@/components/layout/admin-layout";
 import { useQuery } from "@tanstack/react-query";
 
+const addRoomSchema = z.object({
+  name: z.string().min(1, "Room name is required"),
+  type: z.string().min(1, "Room type is required"),
+  capacity: z.coerce.number().min(1, "Capacity must be at least 1"),
+  building: z.string().min(1, "Building is required"),
+  floor: z.coerce.number().min(0).optional(),
+  features: z.array(z.string()).default([])
+});
+
 export default function AdminRooms() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [featuresInput, setFeaturesInput] = useState("");
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const form = useForm<z.infer<typeof addRoomSchema>>({
+    resolver: zodResolver(addRoomSchema),
+    defaultValues: {
+      name: "",
+      type: "",
+      capacity: 1,
+      building: "",
+      floor: undefined,
+      features: []
+    }
+  });
+
+  const addRoomMutation = useMutation({
+    mutationFn: (data: z.infer<typeof addRoomSchema>) => 
+      apiRequest("POST", "/api/rooms", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/rooms"] });
+      setIsAddDialogOpen(false);
+      form.reset();
+      setFeaturesInput("");
+      toast({
+        title: "Success",
+        description: "Room added successfully!"
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add room. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const onSubmit = (data: z.infer<typeof addRoomSchema>) => {
+    const features = featuresInput.split(',').map(s => s.trim()).filter(s => s.length > 0);
+    addRoomMutation.mutate({ ...data, features });
+  };
   
   const { data: rooms, isLoading } = useQuery({
     queryKey: ["/api/rooms"],
@@ -68,10 +130,125 @@ export default function AdminRooms() {
               <Download className="mr-2" size={16} />
               Export
             </Button>
-            <Button data-testid="button-add-room">
-              <Plus className="mr-2" size={16} />
-              Add Room
-            </Button>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button data-testid="button-add-room">
+                  <Plus className="mr-2" size={16} />
+                  Add Room
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Add New Room</DialogTitle>
+                  <DialogDescription>
+                    Enter room details to add it to the facility inventory
+                  </DialogDescription>
+                </DialogHeader>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Room Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="A301" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="type"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Room Type</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select type" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="classroom">Classroom</SelectItem>
+                                <SelectItem value="lab">Laboratory</SelectItem>
+                                <SelectItem value="auditorium">Auditorium</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="capacity"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Capacity</FormLabel>
+                            <FormControl>
+                              <Input type="number" min="1" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="building"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Building</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Academic Block A" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="floor"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Floor (Optional)</FormLabel>
+                            <FormControl>
+                              <Input type="number" min="0" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Features (comma-separated)</label>
+                      <Textarea
+                        placeholder="projector, smart_board, air_conditioning, lab_benches"
+                        value={featuresInput}
+                        onChange={(e) => setFeaturesInput(e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div className="flex justify-end space-x-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setIsAddDialogOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="submit" disabled={addRoomMutation.isPending}>
+                        {addRoomMutation.isPending ? "Adding..." : "Add Room"}
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 

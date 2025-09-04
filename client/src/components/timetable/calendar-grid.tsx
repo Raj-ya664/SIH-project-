@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { mockTimetableData, timeSlots, weekDays } from "@/lib/mock-data";
 import CourseBlock from "./course-block";
 import { useToast } from "@/hooks/use-toast";
@@ -110,8 +110,8 @@ export default function CalendarGrid({ viewMode, selectedFilter }: CalendarGridP
         
         {/* Time Slots */}
         {timeSlots.slice(0, 8).map(time => (
-          <>
-            <div key={time} className="time-slot font-medium">
+          <React.Fragment key={time}>
+            <div className="time-slot font-medium">
               {time}
             </div>
             {weekDays.map(day => {
@@ -153,7 +153,7 @@ export default function CalendarGrid({ viewMode, selectedFilter }: CalendarGridP
                 </div>
               );
             })}
-          </>
+          </React.Fragment>
         ))}
       </div>
 

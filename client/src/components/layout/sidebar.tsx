@@ -26,16 +26,16 @@ export default function Sidebar() {
   ];
 
   return (
-    <div className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
+    <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
       {/* Header */}
-      <div className="p-6 border-b border-sidebar-border">
+      <div className="p-6 border-b border-gray-200">
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-sidebar-primary rounded-lg flex items-center justify-center">
-            <GraduationCap className="text-sidebar-primary-foreground" size={20} />
+          <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+            <GraduationCap className="text-white" size={20} />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-sidebar-foreground">EduTime AI</h1>
-            <p className="text-xs text-sidebar-foreground/60">Admin Panel</p>
+            <h1 className="text-lg font-bold text-black">EduTime AI</h1>
+            <p className="text-xs text-gray-600">Admin Panel</p>
           </div>
         </div>
       </div>
@@ -50,8 +50,8 @@ export default function Sidebar() {
                 variant={isActive ? "default" : "ghost"}
                 className={`w-full justify-start ${
                   isActive 
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground" 
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    ? "bg-black text-white hover:bg-gray-800" 
+                    : "text-black hover:bg-gray-100"
                 }`}
                 data-testid={`nav-${item.label.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
               >
@@ -64,14 +64,14 @@ export default function Sidebar() {
       </nav>
 
       {/* User Info & Logout */}
-      <div className="p-4 border-t border-sidebar-border">
-        <div className="mb-3 p-3 bg-sidebar-accent rounded-lg">
-          <p className="text-sm font-medium text-sidebar-accent-foreground">{user?.username}</p>
-          <p className="text-xs text-sidebar-accent-foreground/60">{user?.email}</p>
+      <div className="p-4 border-t border-gray-200">
+        <div className="mb-3 p-3 bg-gray-100 rounded-lg">
+          <p className="text-sm font-medium text-black">{user?.username}</p>
+          <p className="text-xs text-gray-600">{user?.email}</p>
         </div>
         <Button 
           variant="ghost" 
-          className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent"
+          className="w-full justify-start text-black hover:bg-gray-100"
           onClick={handleLogout}
           data-testid="button-logout"
         >

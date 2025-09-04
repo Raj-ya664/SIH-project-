@@ -157,7 +157,7 @@ export default function FacultyDashboard() {
                   const dayClasses = myTimetable.filter(entry => entry.day === day);
                   const hours = dayClasses.length;
                   const percentage = (hours / 6) * 100; // Assuming max 6 hours per day
-                  
+
                   return (
                     <div key={day} className="space-y-2">
                       <div className="flex justify-between text-sm">
@@ -206,25 +206,24 @@ export default function FacultyDashboard() {
               {weekDays.map(day => (
                 <div key={day} className="time-slot">{day}</div>
               ))}
-              
-              {timeSlots.slice(0, 6).map(time => (
-                <>
-                  <div key={time} className="time-slot">{time}</div>
-                  {weekDays.map(day => {
-                    const entry = myTimetable.find(e => e.day === day && e.time === time);
-                    return (
-                      <div key={`${day}-${time}`} className="calendar-cell">
-                        {entry && (
-                          <div className={`text-xs p-2 rounded text-white ${courseTypeColors[entry.course.type as keyof typeof courseTypeColors]}`}>
-                            <div className="font-medium">{entry.course.code}</div>
-                            <div className="opacity-75">Room: {entry.room}</div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </>
-              ))}
+
+              {timeSlots.slice(0, 6).map(time => [
+                <div key={`time-${time}`} className="time-slot">{time}</div>,
+                ...weekDays.map(day => {
+                  const entry = myTimetable.find(e => e.day === day && e.time === time);
+                  return (
+                    <div key={`${day}-${time}`} className="calendar-cell">
+                      {entry && (
+                        <div className={`text-xs p-2 rounded text-white ${courseTypeColors[entry.course.type as keyof typeof courseTypeColors]}`}>
+                          <div className="font-medium">{entry.course.code}</div>
+                          <div className="opacity-75">Room: {entry.room}</div>
+                          <div className="opacity-75">{entry.section ? `Section ${entry.section}` : 'All Sections'}</div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              ]).flat()}
             </div>
           </CardContent>
         </Card>
@@ -244,7 +243,7 @@ export default function FacultyDashboard() {
               </Button>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>Swap Requests</CardTitle>
@@ -258,7 +257,7 @@ export default function FacultyDashboard() {
               </Button>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>Calendar Sync</CardTitle>

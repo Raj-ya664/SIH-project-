@@ -350,26 +350,24 @@ export default function StudentDashboard() {
                       <div key={day} className="time-slot">{day}</div>
                     ))}
                     
-                    {timeSlots.slice(0, 6).map(time => (
-                      <>
-                        <div key={time} className="time-slot">{time}</div>
-                        {weekDays.map(day => {
-                          const entry = myTimetable.find(e => e.day === day && e.time === time);
-                          return (
-                            <div key={`${day}-${time}`} className="calendar-cell">
-                              {entry && (
-                                <div className={`text-xs p-2 rounded text-white ${courseTypeColors[entry.course.type as keyof typeof courseTypeColors]}`}>
-                                  <div className="font-medium">{entry.course.code}</div>
-                                  <div className="opacity-75">{entry.course.title}</div>
-                                  <div className="opacity-75">Room: {entry.room}</div>
-                                  <div className="opacity-75">{entry.faculty}</div>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </>
-                    ))}
+                    {timeSlots.slice(0, 6).map(time => [
+                      <div key={`time-${time}`} className="time-slot">{time}</div>,
+                      ...weekDays.map(day => {
+                        const entry = myTimetable.find(e => e.day === day && e.time === time);
+                        return (
+                          <div key={`${day}-${time}`} className="calendar-cell">
+                            {entry && (
+                              <div className={`text-xs p-2 rounded text-white ${courseTypeColors[entry.course.type as keyof typeof courseTypeColors]}`}>
+                                <div className="font-medium">{entry.course.code}</div>
+                                <div className="opacity-75">{entry.course.title}</div>
+                                <div className="opacity-75">Room: {entry.room}</div>
+                                <div className="opacity-75">{entry.faculty}</div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })
+                    ]).flat()}
                   </div>
                 )}
               </CardContent>

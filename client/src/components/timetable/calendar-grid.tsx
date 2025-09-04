@@ -109,52 +109,50 @@ export default function CalendarGrid({ viewMode, selectedFilter }: CalendarGridP
         ))}
 
         {/* Time Slots */}
-        {timeSlots.slice(0, 8).map(time => (
-          <React.Fragment key={time}>
-            <div className="time-slot font-medium">
-              {time}
-            </div>
-            {weekDays.map(day => {
-              const entry = getEntryForSlot(day, time);
-              const isDropActive = isDropZoneActive(day, time);
-              const isLunch = isLunchBreak(time);
+        {timeSlots.slice(0, 8).map(time => [
+          <div key={`time-${time}`} className="time-slot font-medium">
+            {time}
+          </div>,
+          ...weekDays.map(day => {
+            const entry = getEntryForSlot(day, time);
+            const isDropActive = isDropZoneActive(day, time);
+            const isLunch = isLunchBreak(time);
 
-              return (
-                <div
-                  key={`${day}-${time}`}
-                  className={`calendar-cell transition-colors ${
-                    isDropActive ? 'bg-primary/10 border-primary border-2 border-dashed' : ''
-                  } ${isLunch ? 'bg-muted/50' : ''}`}
-                  onDragOver={(e) => !isLunch && handleDragOver(e, day, time)}
-                  onDragLeave={handleDragLeave}
-                  onDrop={() => !isLunch && handleDrop(day, time)}
-                  data-testid={`calendar-cell-${day}-${time}`}
-                >
-                  {isLunch ? (
-                    <div className="text-center text-xs text-muted-foreground font-medium py-4">
-                      LUNCH BREAK
-                    </div>
-                  ) : entry ? (
-                    <CourseBlock
-                      entry={entry}
-                      onDragStart={() => handleDragStart(entry)}
-                      onDragEnd={handleDragEnd}
-                      isDragging={draggedItem?.id === entry.id}
-                    />
-                  ) : (
-                    <div className="h-full min-h-[60px] flex items-center justify-center">
-                      {isDropActive && (
-                        <div className="text-xs text-primary font-medium">
-                          Drop here
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </React.Fragment>
-        ))}
+            return (
+              <div
+                key={`${day}-${time}`}
+                className={`calendar-cell transition-colors ${
+                  isDropActive ? 'bg-primary/10 border-primary border-2 border-dashed' : ''
+                } ${isLunch ? 'bg-muted/50' : ''}`}
+                onDragOver={(e) => !isLunch && handleDragOver(e, day, time)}
+                onDragLeave={handleDragLeave}
+                onDrop={() => !isLunch && handleDrop(day, time)}
+                data-testid={`calendar-cell-${day}-${time}`}
+              >
+                {isLunch ? (
+                  <div className="text-center text-xs text-muted-foreground font-medium py-4">
+                    LUNCH BREAK
+                  </div>
+                ) : entry ? (
+                  <CourseBlock
+                    entry={entry}
+                    onDragStart={() => handleDragStart(entry)}
+                    onDragEnd={handleDragEnd}
+                    isDragging={draggedItem?.id === entry.id}
+                  />
+                ) : (
+                  <div className="h-full min-h-[60px] flex items-center justify-center">
+                    {isDropActive && (
+                      <div className="text-xs text-primary font-medium">
+                        Drop here
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })
+        ]).flat()}
       </div>
 
       {/* Drag Instructions */}

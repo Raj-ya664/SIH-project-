@@ -1,0 +1,138 @@
+Full Frontend App (UI-Only)
+🔑 1. Landing Page
+
+Hero Section → App name, tagline (“AI-powered timetable generator for NEP 2020”), big CTA button → Login / Try Demo
+
+How It Works → 3 steps (Import Data → Generate → Publish) with icons
+
+Features Grid → cards for “Conflict-Free Scheduling”, “Faculty Optimization”, “Student Flexibility”, etc.
+
+Testimonials / Benefits section
+
+Call to Action → Get Started
+
+Footer → About, Contact, Help links
+
+👉 This page is your marketing face.
+
+🔐 2. Authentication UI
+
+Login Page with role selector (Admin, Faculty, Student)
+
+Mock login → just redirects to respective dashboard
+
+🖥️ 3. Admin Panel (UI Only)
+
+Sidebar navigation (Dashboard, Students, Faculty, Courses, Rooms, Timetable, Scenarios, Reports, Settings)
+
+Dashboard Widgets:
+
+Dummy charts: total students, faculty, room usage
+
+Conflict alerts (just numbers from mock data)
+
+Quick action buttons (Import, Generate Timetable)
+
+👨‍🎓 4. Student Management (UI)
+
+Table view → Name, Roll No, Credits, Preferences (dummy data)
+
+Buttons → Import/Export CSV (no backend, just dummy download)
+
+👩‍🏫 5. Faculty Management (UI)
+
+Table view → Faculty list, workload hours, expertise
+
+Availability calendar → static FullCalendar with “Available/Unavailable” tags
+
+📘 6. Course Management (UI)
+
+Table → Course Code, Title, Credits, Type (Major/Minor/etc.)
+
+Add/Edit Course form (modal UI, no real save)
+
+🏫 7. Rooms/Labs (UI)
+
+Table → Room Name, Capacity, Features
+
+Availability toggle (checkboxes for days/hours)
+
+📅 8. Timetable Generator (UI)
+
+Button → Generate Timetable (just triggers a spinner → then show mock timetable)
+
+Result → Weekly timetable grid using FullCalendar.js
+
+Export buttons (mock PDF/Excel)
+
+📊 9. Timetable Board (Calendar UI)
+
+FullCalendar.js with:
+
+Filters (Program/Faculty/Room/Student)
+
+Drag-and-drop classes (UI only, no save)
+
+Conflict highlighting (randomly mark some slots red/yellow for demo)
+
+🧪 10. Scenario Management (UI)
+
+Card layout → Scenario 1, Scenario 2, etc.
+
+Compare scenarios (side-by-side mock timetables)
+
+Publish/Archive buttons (no logic, just UI)
+
+👩‍🏫 11. Faculty Portal (UI)
+
+Dashboard with “My Load” chart (dummy bar chart)
+
+Personal timetable (calendar view)
+
+Swap request form (UI only)
+
+🎓 12. Student Portal (UI)
+
+Course preference form (multi-select dropdowns for Major/Minor/etc.)
+
+Credit validation (UI check → highlight in red if >20 credits)
+
+Personalized timetable (dummy calendar)
+
+Export button (fake PDF/ICS)
+
+📑 13. Reports (UI)
+
+Analytics dashboard with:
+
+Pie chart → Course demand
+
+Bar chart → Faculty workload
+
+Line chart → Room utilization
+
+Export buttons (UI only)
+
+🛠️ Tech Stack for Frontend
+
+Next.js (React) → app structure + routing
+
+TailwindCSS + shadcn/ui → modern UI components
+
+FullCalendar.js → interactive timetable/calendar
+
+Recharts / Chart.js → analytics charts
+
+Framer Motion → animations (smooth transitions, landing page effects)
+
+📌 Suggested UI Flow
+
+Landing Page → Login
+
+Login Page → Redirect based on role
+
+Role Dashboard → Sidebar navigation
+
+Calendar/Reports/Forms → Use mock data everywhere
+
+✅ Result: You’ll have a beautiful, working UI prototype with landing + dashboards + portals + timetables → ready to show stakeholders, even before backend is connected.

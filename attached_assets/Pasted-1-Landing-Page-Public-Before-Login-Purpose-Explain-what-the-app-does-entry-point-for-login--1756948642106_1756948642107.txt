@@ -1,0 +1,260 @@
+1. Landing Page (Public / Before Login)
+
+Purpose: Explain what the app does + entry point for login.
+Features:
+
+Header with logo + navigation
+
+Sections:
+
+Hero Banner → “AI-Powered Timetable Generator (NEP 2020)”
+
+How It Works → 3 steps (Import Data → Generate → Publish)
+
+Benefits → optimized, conflict-free, flexible
+
+Roles → Students, Faculty, Admins each get portal access
+
+CTA Buttons: Login, Request Demo
+
+Footer → About, Contact, Help
+
+🔐 2. Authentication Pages
+
+Login Page
+
+Username/password or Google OAuth
+
+Role-based redirect after login (Admin → Dashboard, Faculty → Faculty Portal, Student → Student Portal)
+
+Forgot Password / Reset
+
+(Optional) Signup Page for new institutions
+
+🖥️ 3. Admin Panel (Main Hub after Login)
+
+Features:
+
+Sidebar navigation:
+
+Dashboard
+
+Students
+
+Faculty
+
+Courses
+
+Rooms/Labs
+
+Timetable Generator
+
+Timetable Board
+
+Scenarios
+
+Reports & Exports
+
+Settings
+
+Dashboard Widgets:
+
+Total students, faculty, rooms
+
+Load distribution chart
+
+Room utilization %
+
+Conflict alerts (e.g., 5 clashes found)
+
+Quick Actions: Import Data, Generate Timetable
+
+👨‍🎓 4. Student Management
+
+Features:
+
+Import/export CSV/XLSX
+
+View list of students + enrolled credits
+
+Manage preferences (Majors, Minors, Skill, AEC, VAC)
+
+Assign students to sections
+
+Show warnings if under/over credit limits
+
+👩‍🏫 5. Faculty Management
+
+Features:
+
+Add/edit faculty info
+
+Set availability calendar (weekly slots)
+
+Assign expertise tags (subjects, labs, TP supervision)
+
+Show workload summary (teaching hours/week)
+
+Highlight underloaded/overloaded faculty
+
+📘 6. Course Management
+
+Features:
+
+Create/edit courses (code, title, credits)
+
+Tag type (Major, Minor, Skill, AEC, VAC, Lab, TP, Internship)
+
+Set theory/practical hours split
+
+Define baskets (electives grouped together)
+
+Manage max enrollments & prerequisites
+
+🏫 7. Rooms/Labs Management
+
+Features:
+
+List all rooms
+
+Set capacity & features (lab benches, projector, smart class)
+
+Define availability (e.g., only afternoon slots)
+
+Assign building (for proximity optimization)
+
+📅 8. Timetable Generator (Admin Only)
+
+Features:
+
+Button → Generate Timetable (calls solver)
+
+Show solver progress (loading animation)
+
+Metrics summary:
+
+Conflicts: 0
+
+Student satisfaction: 92%
+
+Faculty load balance: Good
+
+Buttons:
+
+Save as Scenario
+
+Publish
+
+Export PDF/Excel
+
+📊 9. Timetable Board (Interactive Calendar)
+
+Views:
+
+By Program (B.Ed., M.Ed., FYUP, ITEP cohorts)
+
+By Faculty (personal weekly calendar)
+
+By Room/Lab (usage schedule)
+
+By Student Cohort
+
+Features:
+
+Drag-and-drop classes → new slots/rooms
+
+Conflict heatmap (red = clash, yellow = warning)
+
+Filters: Program, Course, Faculty, Room
+
+Zoom: day view / week view
+
+Export selected timetable → PDF/Excel/ICS
+
+🧪 10. Scenario Management
+
+Features:
+
+Create a new scenario (clone current timetable)
+
+Compare scenarios side by side (heatmap diff)
+
+Show metrics delta (satisfaction +3%, load balance -1%)
+
+Approve → publish as final
+
+Archive old scenarios
+
+👨‍🏫 11. Faculty Portal
+
+Features:
+
+View assigned timetable (calendar view)
+
+Teaching load summary (hours/week)
+
+Request swap with another faculty
+
+Submit availability updates (for next semester)
+
+Download personal calendar (ICS/Google Calendar sync)
+
+🎓 12. Student Portal
+
+Features:
+
+Select preferences (Majors, Minors, Skills, AEC, VAC)
+
+Lock course registration (credit validation)
+
+View personalized timetable (calendar)
+
+Export PDF/ICS (for Google Calendar/Outlook)
+
+Notification center (changes, announcements)
+
+📑 13. Reports & Exports
+
+Features:
+
+Export Master Timetable (grid)
+
+Export Faculty loads (Excel)
+
+Export Room utilization (Excel/PDF)
+
+Export Student allocations
+
+Analytics Dashboard:
+
+Pie chart → course demand
+
+Bar chart → faculty workload distribution
+
+Line chart → room utilization trends
+
+⚙️ 14. Settings
+
+Features:
+
+Define slot grid (days × hours)
+
+Academic calendar (holidays, blackout days)
+
+Adjust solver objective weights (student satisfaction vs. faculty balance)
+
+Integrations:
+
+ERP/LMS API
+
+CSV import/export settings
+
+🌟 Key UI/UX Notes
+
+Navigation: Sidebar + topbar (role-based items shown).
+
+Calendar: Use FullCalendar.js (supports drag-drop, week/day view).
+
+Colors: Course types → unique colors (Major = blue, Minor = green, Skill = orange, AEC = purple, VAC = yellow, Lab = red).
+
+Responsive: Mobile-friendly (students/faculty check timetables easily).

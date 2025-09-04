@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { Clock, MapPin, User, Info, Edit2, Save, X } from "lucide-react";
+import { Clock, MapPin, User, Info, Edit2, Save, X, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface CourseBlockProps {
@@ -26,7 +26,8 @@ interface CourseBlockProps {
   onDragStart: () => void;
   onDragEnd: () => void;
   isDragging: boolean;
-  onUpdate?: (updatedEntry: CourseBlockProps['entry']) => void;
+  onUpdate: (updatedEntry: any) => void;
+  onDelete: (entryId: string) => void;
 }
 
 const courseTypeColors = {
@@ -38,7 +39,7 @@ const courseTypeColors = {
   'Lab': 'course-lab',
 };
 
-export default function CourseBlock({ entry, onDragStart, onDragEnd, isDragging, onUpdate }: CourseBlockProps) {
+export default function CourseBlock({ entry, onDragStart, onDragEnd, isDragging, onUpdate, onDelete }: CourseBlockProps) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
@@ -56,7 +57,6 @@ export default function CourseBlock({ entry, onDragStart, onDragEnd, isDragging,
   };
 
   const handleSave = () => {
-    // Update the entry with new data
     const updatedEntry = {
       ...entry,
       course: {
@@ -66,19 +66,19 @@ export default function CourseBlock({ entry, onDragStart, onDragEnd, isDragging,
       },
       faculty: editData.faculty,
       room: editData.room,
-      time: editData.time,
+      time: editData.time
     };
-
-    // Call the onUpdate function if provided
-    if (onUpdate) {
-      onUpdate(updatedEntry);
-    }
-
-    toast({
-      title: "Course Updated",
-      description: `${editData.code} has been updated successfully`,
-    });
+    
+    onUpdate(updatedEntry);
     setIsEditing(false);
+    setIsPopoverOpen(false);
+  };
+
+  const handleDelete = () => {
+    if (window.confirm(`Are you sure you want to delete ${entry.course.code}?`)) {
+      onDelete(entry.id);
+      setIsPopoverOpen(false);
+    }
   };
 
   const handleCancel = () => {
@@ -276,24 +276,35 @@ export default function CourseBlock({ entry, onDragStart, onDragEnd, isDragging,
               
               <Separator />
               
-              <div className="flex justify-end space-x-2">
+              <div className="flex justify-between">
                 <Button
-                  variant="outline"
+                  variant="destructive"
                   size="sm"
-                  onClick={handleCancel}
-                  data-testid={`button-cancel-edit-${entry.course.code}`}
+                  onClick={handleDelete}
+                  data-testid={`button-delete-course-${entry.course.code}`}
                 >
-                  <X size={14} className="mr-1" />
-                  Cancel
+                  <Trash2 size={14} className="mr-1" />
+                  Delete
                 </Button>
-                <Button
-                  size="sm"
-                  onClick={handleSave}
-                  data-testid={`button-save-edit-${entry.course.code}`}
-                >
-                  <Save size={14} className="mr-1" />
-                  Save
-                </Button>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCancel}
+                    data-testid={`button-cancel-edit-${entry.course.code}`}
+                  >
+                    <X size={14} className="mr-1" />
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={handleSave}
+                    data-testid={`button-save-edit-${entry.course.code}`}
+                  >
+                    <Save size={14} className="mr-1" />
+                    Save
+                  </Button>
+                </div>
               </div>
             </div>
           ) : (

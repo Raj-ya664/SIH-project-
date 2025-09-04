@@ -26,6 +26,7 @@ interface CourseBlockProps {
   onDragStart: () => void;
   onDragEnd: () => void;
   isDragging: boolean;
+  onUpdate?: (updatedEntry: CourseBlockProps['entry']) => void;
 }
 
 const courseTypeColors = {
@@ -37,7 +38,7 @@ const courseTypeColors = {
   'Lab': 'course-lab',
 };
 
-export default function CourseBlock({ entry, onDragStart, onDragEnd, isDragging }: CourseBlockProps) {
+export default function CourseBlock({ entry, onDragStart, onDragEnd, isDragging, onUpdate }: CourseBlockProps) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
@@ -55,8 +56,24 @@ export default function CourseBlock({ entry, onDragStart, onDragEnd, isDragging 
   };
 
   const handleSave = () => {
-    // Here you would typically make an API call to update the course
-    // For now, we'll just show a success message
+    // Update the entry with new data
+    const updatedEntry = {
+      ...entry,
+      course: {
+        code: editData.code,
+        title: editData.title,
+        type: editData.type,
+      },
+      faculty: editData.faculty,
+      room: editData.room,
+      time: editData.time,
+    };
+
+    // Call the onUpdate function if provided
+    if (onUpdate) {
+      onUpdate(updatedEntry);
+    }
+
     toast({
       title: "Course Updated",
       description: `${editData.code} has been updated successfully`,

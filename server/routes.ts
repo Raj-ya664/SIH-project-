@@ -8,7 +8,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/login", async (req, res) => {
     try {
       const { username, password, role } = req.body;
-      
+
       const user = await storage.getUserByUsername(username);
       if (!user || user.password !== password || user.role !== role) {
         return res.status(401).json({ message: "Invalid credentials" });
@@ -237,7 +237,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Simulate AI timetable generation
       await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay
-      
+
       const metrics = {
         conflicts: Math.floor(Math.random() * 3), // 0-2 conflicts
         studentSatisfaction: 88 + Math.floor(Math.random() * 12), // 88-99%
@@ -273,9 +273,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const faculty = await storage.getAllFaculty();
       const rooms = await storage.getAllRooms();
       const scenarios = await storage.getAllScenarios();
-      
+
       const activeScenario = scenarios.find(s => s.isActive);
-      
+
       res.json({
         totalStudents: students.length,
         totalFaculty: faculty.length,

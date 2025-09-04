@@ -81,6 +81,24 @@ export default function AdminStudents() {
     }
   });
 
+  const deleteStudentMutation = useMutation({
+    mutationFn: (id: string) => apiRequest("DELETE", `/api/students/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/students"] });
+      toast({
+        title: "Success",
+        description: "Student deleted successfully!"
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete student. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+
   const onSubmit = (data: z.infer<typeof addStudentSchema>) => {
     addStudentMutation.mutate(data);
   };
@@ -347,7 +365,16 @@ export default function AdminStudents() {
                         <Button variant="ghost" size="sm" data-testid={`button-edit-${student.id}`}>
                           <Edit size={14} />
                         </Button>
-                        <Button variant="ghost" size="sm" data-testid={`button-delete-${student.id}`}>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => {
+                            if (window.confirm(`Are you sure you want to delete ${student.name}?`)) {
+                              deleteStudentMutation.mutate(student.id);
+                            }
+                          }}
+                          data-testid={`button-delete-${student.id}`}
+                        >
                           <Trash2 size={14} />
                         </Button>
                       </div>

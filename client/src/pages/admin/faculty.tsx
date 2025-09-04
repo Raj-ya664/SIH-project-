@@ -69,6 +69,24 @@ export default function AdminFaculty() {
     }
   });
 
+  const deleteFacultyMutation = useMutation({
+    mutationFn: (id: string) => apiRequest("DELETE", `/api/faculty/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/faculty"] });
+      toast({
+        title: "Success",
+        description: "Faculty member deleted successfully!"
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete faculty member. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+
   const onSubmit = (data: z.infer<typeof addFacultySchema>) => {
     const expertise = expertiseInput.split(',').map(s => s.trim()).filter(s => s.length > 0);
     addFacultyMutation.mutate({ ...data, expertise });
@@ -341,7 +359,16 @@ export default function AdminFaculty() {
                           <Button variant="ghost" size="sm" data-testid={`button-edit-${member.id}`}>
                             <Edit size={14} />
                           </Button>
-                          <Button variant="ghost" size="sm" data-testid={`button-delete-${member.id}`}>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => {
+                              if (window.confirm(`Are you sure you want to delete ${member.name}?`)) {
+                                deleteFacultyMutation.mutate(member.id);
+                              }
+                            }}
+                            data-testid={`button-delete-${member.id}`}
+                          >
                             <Trash2 size={14} />
                           </Button>
                         </div>

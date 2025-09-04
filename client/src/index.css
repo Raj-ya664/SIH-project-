@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --card: hsl(20, 14.3%, 8%);
+  --ring: hsl(9, 75%, 61%);
+  --input: hsl(20, 14.3%, 18%);
+  --muted: hsl(20, 14.3%, 15%);
+  --accent: hsl(25, 45%, 20%);
+  --border: hsl(20, 14.3%, 15%);
+  --radius: 0.4rem;
+  --shadow: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00), 0px 1px 2px -1px hsl(9, 75%, 61% / 0.00);
+  --chart-1: hsl(203.8863, 88.2845%, 53.1373%);
+  --chart-2: hsl(159.7826, 100%, 36.0784%);
+  --chart-3: hsl(42.0290, 92.8251%, 56.2745%);
+  --chart-4: hsl(147.1429, 78.5047%, 41.9608%);
+  --chart-5: hsl(341.4894, 75.2000%, 50.9804%);
+  --popover: hsl(20, 14.3%, 4%);
+  --primary: hsl(9, 75%, 61%);
+  --sidebar: hsl(20, 14.3%, 8%);
+  --spacing: 0.25rem;
+  --font-mono: 'Menlo', monospace;
+  --font-sans: 'Inter', sans-serif;
+  --secondary: hsl(30, 15%, 52%);
+  --shadow-lg: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00), 0px 4px 6px -1px hsl(9, 75%, 61% / 0.00);
+  --shadow-md: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00), 0px 2px 4px -1px hsl(9, 75%, 61% / 0.00);
+  --shadow-sm: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00), 0px 1px 2px -1px hsl(9, 75%, 61% / 0.00);
+  --shadow-xl: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00), 0px 8px 10px -1px hsl(9, 75%, 61% / 0.00);
+  --shadow-xs: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00);
+  --background: hsl(20, 14.3%, 4%);
+  --font-serif: 'Inter', sans-serif;
+  --foreground: hsl(45, 25%, 91%);
+  --shadow-2xl: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00);
+  --shadow-2xs: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00);
+  --destructive: hsl(356.3033, 90.5579%, 54.3137%);
+  --sidebar-ring: hsl(9, 75%, 61%);
+  --sidebar-accent: hsl(25, 45%, 20%);
+  --sidebar-border: hsl(20, 14.3%, 15%);
+  --card-foreground: hsl(45, 25%, 85%);
+  --sidebar-primary: hsl(9, 75%, 61%);
+  --tracking-normal: 0em;
+  --muted-foreground: hsl(45, 15%, 46%);
+  --accent-foreground: hsl(45, 25%, 85%);
+  --popover-foreground: hsl(45, 25%, 91%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --sidebar-foreground: hsl(45, 25%, 85%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --sidebar-accent-foreground: hsl(45, 25%, 85%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
+}
+
+.light {
+  --card: hsl(0, 0%, 100%);
+  --ring: hsl(221.74, 13.14%, 34.31%);
+  --input: hsl(214.3, 31.8%, 91.4%);
+  --muted: hsl(210, 40%, 96%);
+  --accent: hsl(210, 40%, 92%);
+  --border: hsl(214.3, 31.8%, 91.4%);
+  --chart-1: hsl(203.8863, 88.2845%, 53.1373%);
+  --chart-2: hsl(159.7826, 100%, 36.0784%);
+  --chart-3: hsl(42.0290, 92.8251%, 56.2745%);
+  --chart-4: hsl(147.1429, 78.5047%, 41.9608%);
+  --chart-5: hsl(341.4894, 75.2000%, 50.9804%);
+  --popover: hsl(0, 0%, 100%);
+  --primary: hsl(9, 75%, 61%);
+  --sidebar: hsl(0, 0%, 100%);
+  --secondary: hsl(210, 40%, 96%);
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(222.2, 84%, 4.9%);
+  --destructive: hsl(356.3033, 90.5579%, 54.3137%);
+  --sidebar-ring: hsl(9, 75%, 61%);
+  --sidebar-accent: hsl(210, 40%, 92%);
+  --sidebar-border: hsl(214.3, 31.8%, 91.4%);
+  --card-foreground: hsl(222.2, 84%, 4.9%);
+  --sidebar-primary: hsl(9, 75%, 61%);
+  --muted-foreground: hsl(215.4, 16.3%, 46.9%);
+  --accent-foreground: hsl(222.2, 84%, 4.9%);
+  --popover-foreground: hsl(222.2, 84%, 4.9%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --sidebar-foreground: hsl(222.2, 84%, 4.9%);
+  --secondary-foreground: hsl(222.2, 84%, 4.9%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --sidebar-accent-foreground: hsl(222.2, 84%, 4.9%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+/* Course type colors */
+.course-major { 
+  background-color: var(--chart-1); 
+}
+.course-minor { 
+  background-color: var(--chart-2); 
+}
+.course-skill { 
+  background-color: var(--chart-3); 
+}
+.course-aec { 
+  background-color: var(--chart-5); 
+}
+.course-vac { 
+  background-color: var(--chart-4); 
+}
+.course-lab { 
+  background-color: var(--destructive); 
+}
+
+/* Calendar grid styles */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: 100px repeat(5, 1fr);
+  gap: 1px;
+  background-color: var(--border);
+}
+
+.calendar-cell {
+  background-color: var(--card);
+  padding: 8px;
+  min-height: 60px;
+  position: relative;
+}
+
+.time-slot {
+  background-color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+}
+
+/* Drag and drop styles */
+.dragging {
+  opacity: 0.5;
+}
+
+.drop-zone {
+  background-color: var(--accent);
+}
+
+/* Animation utilities */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading spinner */
+.loading-spinner {
+  border: 3px solid var(--muted);
+  border-top: 3px solid var(--primary);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--chart-3) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

@@ -195,33 +195,66 @@ export default function CourseBlock({ entry, onDragStart, onDragEnd, isDragging 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor="faculty" className="text-sm">Faculty</Label>
-                  <Input
-                    id="faculty"
+                  <Select
                     value={editData.faculty}
-                    onChange={(e) => setEditData({...editData, faculty: e.target.value})}
-                    className="mt-1"
-                  />
+                    onValueChange={(value) => setEditData({...editData, faculty: value})}
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Dr. Sarah Wilson">Dr. Sarah Wilson</SelectItem>
+                      <SelectItem value="Prof. Michael Brown">Prof. Michael Brown</SelectItem>
+                      <SelectItem value="Dr. Green Earth">Dr. Green Earth</SelectItem>
+                      <SelectItem value="Coach Fitness">Coach Fitness</SelectItem>
+                      <SelectItem value="Prof. Tech Support">Prof. Tech Support</SelectItem>
+                      <SelectItem value="Dr. Jane Smith">Dr. Jane Smith</SelectItem>
+                      <SelectItem value="Prof. John Doe">Prof. John Doe</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label htmlFor="room" className="text-sm">Room</Label>
-                  <Input
-                    id="room"
+                  <Select
                     value={editData.room}
-                    onChange={(e) => setEditData({...editData, room: e.target.value})}
-                    className="mt-1"
-                  />
+                    onValueChange={(value) => setEditData({...editData, room: value})}
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="A301">A301 - Lecture Hall</SelectItem>
+                      <SelectItem value="B205">B205 - Classroom</SelectItem>
+                      <SelectItem value="C102">C102 - Conference Room</SelectItem>
+                      <SelectItem value="IT-LAB-01">IT-LAB-01 - Computer Lab</SelectItem>
+                      <SelectItem value="Sports Complex">Sports Complex</SelectItem>
+                      <SelectItem value="D103">D103 - Seminar Hall</SelectItem>
+                      <SelectItem value="Library">Library - Reading Room</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               
               <div>
                 <Label htmlFor="time" className="text-sm">Time</Label>
-                <Input
-                  id="time"
+                <Select
                   value={editData.time}
-                  onChange={(e) => setEditData({...editData, time: e.target.value})}
-                  className="mt-1"
-                  placeholder="HH:MM (e.g., 09:00)"
-                />
+                  onValueChange={(value) => setEditData({...editData, time: value})}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="09:00">09:00 - 10:00</SelectItem>
+                    <SelectItem value="10:00">10:00 - 11:00</SelectItem>
+                    <SelectItem value="11:00">11:00 - 12:00</SelectItem>
+                    <SelectItem value="12:00">12:00 - 13:00 (Lunch)</SelectItem>
+                    <SelectItem value="13:00">13:00 - 14:00</SelectItem>
+                    <SelectItem value="14:00">14:00 - 15:00</SelectItem>
+                    <SelectItem value="15:00">15:00 - 16:00</SelectItem>
+                    <SelectItem value="16:00">16:00 - 17:00</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               
               <Separator />

@@ -107,7 +107,7 @@ export default function CalendarGrid({ viewMode, selectedFilter }: CalendarGridP
             {day}
           </div>
         ))}
-        
+
         {/* Time Slots */}
         {timeSlots.slice(0, 8).map(time => (
           <React.Fragment key={time}>
@@ -118,7 +118,7 @@ export default function CalendarGrid({ viewMode, selectedFilter }: CalendarGridP
               const entry = getEntryForSlot(day, time);
               const isDropActive = isDropZoneActive(day, time);
               const isLunch = isLunchBreak(time);
-              
+
               return (
                 <div
                   key={`${day}-${time}`}

@@ -75,6 +75,24 @@ export default function AdminCourses() {
     }
   });
 
+  const deleteCourseMutation = useMutation({
+    mutationFn: (id: string) => apiRequest("DELETE", `/api/courses/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/courses"] });
+      toast({
+        title: "Success",
+        description: "Course deleted successfully!"
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete course. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+
   const onSubmit = (data: z.infer<typeof addCourseSchema>) => {
     addCourseMutation.mutate(data);
   };
@@ -416,7 +434,16 @@ export default function AdminCourses() {
                         <Button variant="ghost" size="sm" data-testid={`button-edit-${course.id}`}>
                           <Edit size={14} />
                         </Button>
-                        <Button variant="ghost" size="sm" data-testid={`button-delete-${course.id}`}>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => {
+                            if (window.confirm(`Are you sure you want to delete ${course.code} - ${course.title}?`)) {
+                              deleteCourseMutation.mutate(course.id);
+                            }
+                          }}
+                          data-testid={`button-delete-${course.id}`}
+                        >
                           <Trash2 size={14} />
                         </Button>
                       </div>

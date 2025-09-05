@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduTime AI - NEP 2020 Compliant Timetable Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        darkMode: 'class',
+        theme: {
+            extend: {
+                borderRadius: {
+                    lg: "var(--radius)",
+                    md: "calc(var(--radius) - 2px)",
+                    sm: "calc(var(--radius) - 4px)",
+                },
+                colors: {
+                    background: "var(--background)",
+                    foreground: "var(--foreground)",
+                    card: {
+                        DEFAULT: "var(--card)",
+                        foreground: "var(--card-foreground)",
+                    },
+                    popover: {
+                        DEFAULT: "var(--popover)",
+                        foreground: "var(--popover-foreground)",
+                    },
+                    primary: {
+                        DEFAULT: "var(--primary)",
+                        foreground: "var(--primary-foreground)",
+                    },
+                    secondary: {
+                        DEFAULT: "var(--secondary)",
+                        foreground: "var(--secondary-foreground)",
+                    },
+                    muted: {
+                        DEFAULT: "var(--muted)",
+                        foreground: "var(--muted-foreground)",
+                    },
+                    accent: {
+                        DEFAULT: "var(--accent)",
+                        foreground: "var(--accent-foreground)",
+                    },
+                    destructive: {
+                        DEFAULT: "var(--destructive)",
+                        foreground: "var(--destructive-foreground)",
+                    },
+                    border: "var(--border)",
+                    input: "var(--input)",
+                    ring: "var(--ring)",
+                    chart: {
+                        "1": "var(--chart-1)",
+                        "2": "var(--chart-2)",
+                        "3": "var(--chart-3)",
+                        "4": "var(--chart-4)",
+                        "5": "var(--chart-5)",
+                    }
+                },
+                fontFamily: {
+                    sans: ["var(--font-sans)"],
+                    serif: ["var(--font-serif)"],
+                    mono: ["var(--font-mono)"],
+                }
+            },
+        }
+    };
+    </script>
+    <style>
+        :root {
+            --card: #101011;
+            --ring: hsl(221.74, 13.14%, 34.31%);
+            --input: #2b2b2b;
+            --muted: #404040;
+            --accent: hsl(0, 0%, 92.16%);
+            --border: #2b2b2b;
+            --radius: 0.4rem;
+            --shadow: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00), 0px 1px 2px -1px hsl(9, 75%, 61% / 0.00);
+            --chart-1: hsl(203.8863, 88.2845%, 53.1373%);
+            --chart-2: hsl(159.7826, 100%, 36.0784%);
+            --chart-3: hsl(42.0290, 92.8251%, 56.2745%);
+            --chart-4: hsl(147.1429, 78.5047%, 41.9608%);
+            --chart-5: hsl(341.4894, 75.2000%, 50.9804%);
+            --popover: hsl(45, 25%, 97%);
+            --primary: #f5f5f5;
+            --sidebar: hsl(45, 25%, 97%);
+            --spacing: 0.25rem;
+            --font-mono: Menlo, monospace;
+            --font-sans: 'Inter', sans-serif;
+            --secondary: #ebebeb;
+            --shadow-lg: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00), 0px 4px 6px -1px hsl(9, 75%, 61% / 0.00);
+            --shadow-md: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00), 0px 2px 4px -1px hsl(9, 75%, 61% / 0.00);
+            --shadow-sm: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00), 0px 1px 2px -1px hsl(9, 75%, 61% / 0.00);
+            --shadow-xl: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00), 0px 8px 10px -1px hsl(9, 75%, 61% / 0.00);
+            --shadow-xs: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00);
+            --background: #090909;
+            --font-serif: 'Inter', sans-serif;
+            --foreground: #ebebeb;
+            --shadow-2xl: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00);
+            --shadow-2xs: 0px 2px 0px 0px hsl(9, 75%, 61% / 0.00);
+            --destructive: hsl(356.3033, 90.5579%, 54.3137%);
+            --sidebar-ring: hsl(9, 75%, 61%);
+            --sidebar-accent: hsl(25, 45%, 80%);
+            --sidebar-border: hsl(45, 15%, 80%);
+            --card-foreground: hsl(0, 0%, 100%);
+            --sidebar-primary: hsl(9, 75%, 61%);
+            --tracking-normal: 0em;
+            --muted-foreground: #ababab;
+            --accent-foreground: hsl(0, 0%, 0%);
+            --popover-foreground: hsl(0, 0%, 100%);
+            --primary-foreground: #0d0d0d;
+            --sidebar-foreground: hsl(20, 14%, 17%);
+            --secondary-foreground: #0d0d0d;
+            --destructive-foreground: #ffffff;
+            --sidebar-accent-foreground: hsl(20, 14%, 17%);
+            --sidebar-primary-foreground: hsl(0, 0%, 100%);
+        }
+
+        .dark {
+            --card: hsl(20, 14%, 8%);
+            --ring: hsl(9, 75%, 61%);
+            --input: hsl(20, 14%, 18%);
+            --muted: hsl(20, 14%, 15%);
+            --accent: hsl(25, 45%, 20%);
+            --border: hsl(20, 14%, 15%);
+            --chart-1: hsl(203.8863, 88.2845%, 53.1373%);
+            --chart-2: hsl(159.7826, 100%, 36.0784%);
+            --chart-3: hsl(42.0290, 92.8251%, 56.2745%);
+            --chart-4: hsl(147.1429, 78.5047%, 41.9608%);
+            --chart-5: hsl(341.4894, 75.2000%, 50.9804%);
+            --popover: hsl(20, 14%, 4%);
+            --primary: hsl(9, 75%, 61%);
+            --sidebar: hsl(20, 14%, 8%);
+            --secondary: hsl(30, 15%, 52%);
+            --background: hsl(20, 14%, 4%);
+            --foreground: hsl(45, 25%, 91%);
+            --destructive: hsl(356.3033, 90.5579%, 54.3137%);
+            --sidebar-ring: hsl(9, 75%, 61%);
+            --sidebar-accent: hsl(25, 45%, 20%);
+            --sidebar-border: hsl(20, 14%, 15%);
+            --card-foreground: hsl(45, 25%, 85%);
+            --sidebar-primary: hsl(9, 75%, 61%);
+            --muted-foreground: hsl(45, 15%, 46%);
+            --accent-foreground: hsl(45, 25%, 85%);
+            --popover-foreground: hsl(45, 25%, 91%);
+            --primary-foreground: hsl(0, 0%, 100%);
+            --sidebar-foreground: hsl(45, 25%, 85%);
+            --secondary-foreground: hsl(0, 0%, 100%);
+            --destructive-foreground: hsl(0, 0%, 100%);
+            --sidebar-accent-foreground: hsl(45, 25%, 85%);
+            --sidebar-primary-foreground: hsl(0, 0%, 100%);
+        }
+
+        * {
+            font-family: var(--font-sans);
+        }
+
+        /* Course type colors */
+        .course-major { background-color: var(--chart-1); }
+        .course-minor { background-color: var(--chart-2); }
+        .course-skill { background-color: var(--chart-3); }
+        .course-aec { background-color: var(--chart-5); }
+        .course-vac { background-color: var(--chart-4); }
+        .course-lab { background-color: var(--destructive); }
+
+        /* Calendar grid styles */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: 100px repeat(5, 1fr);
+            gap: 1px;
+            background-color: var(--border);
+        }
+        
+        .calendar-cell {
+            background-color: var(--card);
+            padding: 8px;
+            min-height: 60px;
+            position: relative;
+        }
+        
+        .time-slot {
+            background-color: var(--muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-background text-foreground">
+    <!-- Navigation Header -->
+    <header class="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <nav class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                        <i class="fas fa-graduation-cap text-primary-foreground text-lg"></i>
+                    </div>
+                    <span class="text-xl font-bold text-foreground">EduTime AI</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#features" class="text-muted-foreground hover:text-foreground transition-colors">Features</a>
+                    <a href="#how-it-works" class="text-muted-foreground hover:text-foreground transition-colors">How It Works</a>
+                    <a href="#roles" class="text-muted-foreground hover:text-foreground transition-colors">Portals</a>
+                    <a href="#demo" class="text-muted-foreground hover:text-foreground transition-colors">Demo</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-muted-foreground hover:text-foreground transition-colors" onclick="showLoginModal()">
+                        Login
+                    </button>
+                    <button class="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors" onclick="showDemoModal()">
+                        Try Demo
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="py-20 px-6">
+        <div class="container mx-auto text-center max-w-4xl">
+            <div class="mb-6">
+                <span class="inline-block px-3 py-1 text-sm bg-primary/10 text-primary rounded-full border border-primary/20">
+                    NEP 2020 Compliant
+                </span>
+            </div>
+            <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+                AI-Powered Timetable Generator for
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-chart-3">
+                    Modern Education
+                </span>
+            </h1>
+            <p class="text-xl text-muted-foreground mb-8 leading-relaxed">
+                Transform your academic scheduling with intelligent automation. Create conflict-free timetables that optimize student satisfaction, faculty workload, and resource utilization—all while maintaining NEP 2020 compliance.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+                <button class="bg-primary text-primary-foreground px-8 py-4 rounded-lg text-lg font-semibold hover:bg-primary/90 transition-colors w-full sm:w-auto" onclick="showLoginModal()">
+                    Get Started Now
+                </button>
+                <button class="border border-border text-foreground px-8 py-4 rounded-lg text-lg font-semibold hover:bg-accent/50 transition-colors w-full sm:w-auto" onclick="showDemoModal()">
+                    <i class="fas fa-play mr-2"></i>
+                    Watch Demo
+                </button>
+            </div>
+            <!-- Hero Dashboard Preview -->
+            <div class="relative mx-auto max-w-6xl">
+                <div class="bg-card border border-border rounded-xl shadow-xl overflow-hidden">
+                    <div class="flex items-center justify-between p-4 border-b border-border bg-muted/30">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-destructive rounded-full"></div>
+                            <div class="w-3 h-3 bg-chart-3 rounded-full"></div>
+                            <div class="w-3 h-3 bg-chart-2 rounded-full"></div>
+                        </div>
+                        <div class="text-sm text-muted-foreground">Admin Dashboard - EduTime AI</div>
+                        <div class="w-16"></div>
+                    </div>
+                    <div class="p-6">
+                        <!-- Mock Dashboard Widgets -->
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                            <div class="bg-muted/30 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-muted-foreground">Total Students</p>
+                                        <p class="text-2xl font-bold text-chart-1">2,847</p>
+                                    </div>
+                                    <i class="fas fa-users text-chart-1 text-2xl"></i>
+                                </div>
+                            </div>
+                            <div class="bg-muted/30 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-muted-foreground">Faculty</p>
+                                        <p class="text-2xl font-bold text-chart-2">142</p>
+                                    </div>
+                                    <i class="fas fa-chalkboard-teacher text-chart-2 text-2xl"></i>
+                                </div>
+                            </div>
+                            <div class="bg-muted/30 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-muted-foreground">Rooms/Labs</p>
+                                        <p class="text-2xl font-bold text-chart-3">89</p>
+                                    </div>
+                                    <i class="fas fa-door-open text-chart-3 text-2xl"></i>
+                                </div>
+                            </div>
+                            <div class="bg-muted/30 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-muted-foreground">Conflicts</p>
+                                        <p class="text-2xl font-bold text-chart-2">0</p>
+                                    </div>
+                                    <i class="fas fa-check-circle text-chart-2 text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Mock Calendar Preview -->
+                        <div class="bg-muted/20 rounded-lg p-4">
+                            <h3 class="text-lg font-semibold mb-4">Weekly Timetable Overview</h3>
+                            <div class="calendar-grid text-sm">
+                                <div class="time-slot">Time</div>
+                                <div class="time-slot">Mon</div>
+                                <div class="time-slot">Tue</div>
+                                <div class="time-slot">Wed</div>
+                                <div class="time-slot">Thu</div>
+                                <div class="time-slot">Fri</div>
+                                
+                                <div class="time-slot">9:00</div>
+                                <div class="calendar-cell">
+                                    <div class="course-major text-xs p-1 rounded text-white">CS101</div>
+                                </div>
+                                <div class="calendar-cell">
+                                    <div class="course-minor text-xs p-1 rounded text-white">Math201</div>
+                                </div>
+                                <div class="calendar-cell">
+                                    <div class="course-skill text-xs p-1 rounded text-white">Skill Dev</div>
+                                </div>
+                                <div class="calendar-cell">
+                                    <div class="course-lab text-xs p-1 rounded text-white">CS Lab</div>
+                                </div>
+                                <div class="calendar-cell">
+                                    <div class="course-aec text-xs p-1 rounded text-white">AEC-1</div>
+                                </div>
+                                
+                                <div class="time-slot">10:00</div>
+                                <div class="calendar-cell">
+                                    <div class="course-minor text-xs p-1 rounded text-white">Physics</div>
+                                </div>
+                                <div class="calendar-cell">
+                                    <div class="course-major text-xs p-1 rounded text-white">CS102</div>
+                                </div>
+                                <div class="calendar-cell">
+                                    <div class="course-vac text-xs p-1 rounded text-white">VAC-2</div>
+                                </div>
+                                <div class="calendar-cell">
+                                    <div class="course-major text-xs p-1 rounded text-white">DS Algo</div>
+                                </div>
+                                <div class="calendar-cell">
+                                    <div class="course-skill text-xs p-1 rounded text-white">Research</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="py-20 px-6 bg-muted/20">
+        <div class="container mx-auto max-w-6xl">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">How It Works</h2>
+                <p class="text-xl text-muted-foreground">Three simple steps to generate your perfect timetable</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-chart-1 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-upload text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">1. Import Data</h3>
+                    <p class="text-muted-foreground leading-relaxed">
+                        Upload student preferences, faculty availability, course requirements, and room constraints. Our system supports CSV, Excel, and direct API integration with existing ERP systems.
+                    </p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-chart-2 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-brain text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">2. AI Generation</h3>
+                    <p class="text-muted-foreground leading-relaxed">
+                        Our advanced AI solver analyzes all constraints and preferences to generate optimal timetables. The algorithm considers student satisfaction, faculty workload balance, and resource utilization.
+                    </p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-chart-3 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-share text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-4">3. Publish & Export</h3>
+                    <p class="text-muted-foreground leading-relaxed">
+                        Review the generated timetable, make manual adjustments if needed, and publish to all stakeholders. Export in multiple formats including PDF, Excel, and calendar sync.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Grid -->
+    <section id="features" class="py-20 px-6">
+        <div class="container mx-auto max-w-6xl">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">Powerful Features</h2>
+                <p class="text-xl text-muted-foreground">Everything you need for modern academic scheduling</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
+                    <div class="w-12 h-12 bg-chart-1 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-shield-alt text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Conflict-Free Scheduling</h3>
+                    <p class="text-muted-foreground">Advanced algorithms ensure zero scheduling conflicts while maximizing student and faculty satisfaction.</p>
+                </div>
+                <div class="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
+                    <div class="w-12 h-12 bg-chart-2 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-balance-scale text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Faculty Optimization</h3>
+                    <p class="text-muted-foreground">Intelligent workload distribution ensures fair teaching hours and considers faculty preferences and expertise.</p>
+                </div>
+                <div class="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
+                    <div class="w-12 h-12 bg-chart-3 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-users-cog text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Student Flexibility</h3>
+                    <p class="text-muted-foreground">Support for NEP 2020 flexible curriculum with Major, Minor, Skill, AEC, and VAC course selections.</p>
+                </div>
+                <div class="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
+                    <div class="w-12 h-12 bg-chart-4 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-building text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Resource Management</h3>
+                    <p class="text-muted-foreground">Optimize room and lab utilization with capacity constraints and equipment requirements.</p>
+                </div>
+                <div class="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
+                    <div class="w-12 h-12 bg-chart-5 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-chart-line text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Analytics & Reports</h3>
+                    <p class="text-muted-foreground">Comprehensive dashboards and reports provide insights into utilization, satisfaction, and optimization metrics.</p>
+                </div>
+                <div class="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
+                    <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-mobile-alt text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Mobile Friendly</h3>
+                    <p class="text-muted-foreground">Responsive design ensures students and faculty can access their timetables from any device, anywhere.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Role-Based Portals -->
+    <section id="roles" class="py-20 px-6 bg-muted/20">
+        <div class="container mx-auto max-w-6xl">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">Role-Based Portals</h2>
+                <p class="text-xl text-muted-foreground">Tailored interfaces for every user type</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Admin Portal -->
+                <div class="bg-card border border-border rounded-xl overflow-hidden hover:shadow-xl transition-shadow">
+                    <div class="h-48 bg-gradient-to-br from-chart-1 to-chart-1/80 p-6 flex items-center justify-center">
+                        <i class="fas fa-user-shield text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-4">Admin Panel</h3>
+                        <ul class="space-y-3 text-muted-foreground mb-6">
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-chart-2 mr-2"></i>
+                                Complete timetable management
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-chart-2 mr-2"></i>
+                                Student & faculty oversight
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-chart-2 mr-2"></i>
+                                Course & room management
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-chart-2 mr-2"></i>
+                                Analytics & reports
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-chart-2 mr-2"></i>
+                                Scenario comparisons
+                            </li>
+                        </ul>
+                        <button class="w-full bg-chart-1 text-white py-2 rounded-lg hover:bg-chart-1/90 transition-colors" onclick="showAdminDemo()">
+                            View Admin Demo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Faculty Portal -->
+                <div class="bg-card border border-border rounded-xl overflow-hidden hover:shadow-xl transition-shadow">
+                    <div class="h-48 bg-gradient-to-br from-chart-2 to-chart-2/80 p-6 flex items-center justify-center">
+                        <i class="fas fa-chalkboard-teacher text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-4">Faculty Portal</h3>
+                        <ul class="space-y-3 text-muted-foreground mb-6">
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-chart-2 mr-2"></i>
+                                Personal timetable view
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-chart-2 mr-2"></i>
+                                Workload tracking
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-chart-2 mr-2"></i>
+                                Availability management
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-chart-2 mr-2"></i>
+                                Swap requests
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-chart-2 mr-2"></i>
+                                Calendar export
+                            </li>
+                        </ul>
+                        <button class="w-full bg-chart-2 text-white py-2 rounded-lg hover:bg-chart-2/90 transition-colors" onclick="showFacultyDemo()">
+                            View Faculty Demo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Student Portal -->
+                <div class="bg-card border border-border rounded-xl overflow-hidden hover:shadow-xl transition-shadow">
+                    <div class="h-48 bg-gradient-to-br from-chart-3 to-chart-3/80 p-6 flex items-center justify-center">
+                        <i class="fas fa-user-graduate text-white text-6xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-4">Student Portal</h3>
+                        <ul class="space-y-3 text-muted-foreground mb-6">
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-chart-2 mr-2"></i>
+                                Course preferences
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-chart-2 mr-2"></i>
+                                Personalized timetable
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-chart-2 mr-2"></i>
+                                Credit validation
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-chart-2 mr-2"></i>
+                                NEP 2020 compliance
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-chart-2 mr-2"></i>
+                                Mobile access
+                            </li>
+                        </ul>
+                        <button class="w-full bg-chart-3 text-white py-2 rounded-lg hover:bg-chart-3/90 transition-colors" onclick="showStudentDemo()">
+                            View Student Demo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Timetable Demo -->
+    <section id="demo" class="py-20 px-6">
+        <div class="container mx-auto max-w-6xl">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">Interactive Timetable Management</h2>
+                <p class="text-xl text-muted-foreground">Experience drag-and-drop scheduling with real-time conflict detection</p>
+            </div>
+            
+            <!-- Demo Controls -->
+            <div class="bg-card border border-border rounded-lg p-6 mb-8">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <div class="flex items-center space-x-4">
+                        <select class="bg-input border border-border rounded-lg px-4 py-2 text-foreground">
+                            <option>View: All Programs</option>
+                            <option>B.Ed. Program</option>
+                            <option>M.Ed. Program</option>
+                            <option>FYUP Cohort</option>
+                        </select>
+                        <select class="bg-input border border-border rounded-lg px-4 py-2 text-foreground">
+                            <option>Filter: All Courses</option>
+                            <option>Major Courses</option>
+                            <option>Minor Courses</option>
+                            <option>Skill Development</option>
+                            <option>AEC Courses</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                            <i class="fas fa-magic mr-2"></i>Generate
+                        </button>
+                        <button class="bg-secondary text-secondary-foreground px-4 py-2 rounded-lg hover:bg-secondary/90 transition-colors">
+                            <i class="fas fa-download mr-2"></i>Export
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Course Type Legend -->
+                <div class="flex flex-wrap items-center gap-4 text-sm">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-4 h-4 bg-chart-1 rounded"></div>
+                        <span>Major</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-4 h-4 bg-chart-2 rounded"></div>
+                        <span>Minor</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-4 h-4 bg-chart-3 rounded"></div>
+                        <span>Skill</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-4 h-4 bg-chart-5 rounded"></div>
+                        <span>AEC</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-4 h-4 bg-chart-4 rounded"></div>
+                        <span>VAC</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-4 h-4 bg-destructive rounded"></div>
+                        <span>Lab</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Calendar -->
+            <div class="bg-card border border-border rounded-lg p-6">
+                <div class="calendar-grid">
+                    <!-- Header Row -->
+                    <div class="time-slot">Time</div>
+                    <div class="time-slot">Monday</div>
+                    <div class="time-slot">Tuesday</div>
+                    <div class="time-slot">Wednesday</div>
+                    <div class="time-slot">Thursday</div>
+                    <div class="time-slot">Friday</div>
+                    
+                    <!-- 9:00 AM Row -->
+                    <div class="time-slot">9:00 AM</div>
+                    <div class="calendar-cell">
+                        <div class="course-major text-xs p-2 rounded text-white cursor-move hover:opacity-80 transition-opacity" draggable="true">
+                            <div class="font-medium">CS101</div>
+                            <div class="opacity-75">Room: A301</div>
+                        </div>
+                    </div>
+                    <div class="calendar-cell">
+                        <div class="course-minor text-xs p-2 rounded text-white cursor-move hover:opacity-80 transition-opacity" draggable="true">
+                            <div class="font-medium">MATH201</div>
+                            <div class="opacity-75">Room: B205</div>
+                        </div>
+                    </div>
+                    <div class="calendar-cell">
+                        <div class="course-skill text-xs p-2 rounded text-white cursor-move hover:opacity-80 transition-opacity" draggable="true">
+                            <div class="font-medium">Skill Dev</div>
+                            <div class="opacity-75">Room: C102</div>
+                        </div>
+                    </div>
+                    <div class="calendar-cell">
+                        <div class="course-lab text-xs p-2 rounded text-white cursor-move hover:opacity-80 transition-opacity" draggable="true">
+                            <div class="font-medium">CS Lab</div>
+                            <div class="opacity-75">Lab: IT-01</div>
+                        </div>
+                    </div>
+                    <div class="calendar-cell">
+                        <div class="course-aec text-xs p-2 rounded text-white cursor-move hover:opacity-80 transition-opacity" draggable="true">
+                            <div class="font-medium">AEC-1</div>
+                            <div class="opacity-75">Room: D103</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 10:00 AM Row -->
+                    <div class="time-slot">10:00 AM</div>
+                    <div class="calendar-cell">
+                        <div class="course-minor text-xs p-2 rounded text-white cursor-move hover:opacity-80 transition-opacity" draggable="true">
+                            <div class="font-medium">Physics</div>
+                            <div class="opacity-75">Room: B301</div>
+                        </div>
+                    </div>
+                    <div class="calendar-cell">
+                        <div class="course-major text-xs p-2 rounded text-white cursor-move hover:opacity-80 transition-opacity" draggable="true">
+                            <div class="font-medium">CS102</div>
+                            <div class="opacity-75">Room: A302</div>
+                        </div>
+                    </div>
+                    <div class="calendar-cell">
+                        <div class="course-vac text-xs p-2 rounded text-white cursor-move hover:opacity-80 transition-opacity" draggable="true">
+                            <div class="font-medium">VAC-2</div>
+                            <div class="opacity-75">Room: E201</div>
+                        </div>
+                    </div>
+                    <div class="calendar-cell">
+                        <div class="course-major text-xs p-2 rounded text-white cursor-move hover:opacity-80 transition-opacity" draggable="true">
+                            <div class="font-medium">Data Structures</div>
+                            <div class="opacity-75">Room: A303</div>
+                        </div>
+                    </div>
+                    <div class="calendar-cell">
+                        <div class="course-skill text-xs p-2 rounded text-white cursor-move hover:opacity-80 transition-opacity" draggable="true">
+                            <div class="font-medium">Research Methods</div>
+                            <div class="opacity-75">Room: F104</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 11:00 AM Row -->
+                    <div class="time-slot">11:00 AM</div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell">
+                        <div class="course-lab text-xs p-2 rounded text-white cursor-move hover:opacity-80 transition-opacity" draggable="true">
+                            <div class="font-medium">Physics Lab</div>
+                            <div class="opacity-75">Lab: PH-02</div>
+                        </div>
+                    </div>
+                    <div class="calendar-cell">
+                        <div class="course-major text-xs p-2 rounded text-white cursor-move hover:opacity-80 transition-opacity" draggable="true">
+                            <div class="font-medium">Algorithms</div>
+                            <div class="opacity-75">Room: A304</div>
+                        </div>
+                    </div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell">
+                        <div class="course-aec text-xs p-2 rounded text-white cursor-move hover:opacity-80 transition-opacity" draggable="true">
+                            <div class="font-medium">AEC-3</div>
+                            <div class="opacity-75">Room: D104</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 12:00 PM Row -->
+                    <div class="time-slot">12:00 PM</div>
+                    <div class="calendar-cell bg-muted/30">
+                        <div class="text-xs text-center text-muted-foreground font-medium">LUNCH BREAK</div>
+                    </div>
+                    <div class="calendar-cell bg-muted/30">
+                        <div class="text-xs text-center text-muted-foreground font-medium">LUNCH BREAK</div>
+                    </div>
+                    <div class="calendar-cell bg-muted/30">
+                        <div class="text-xs text-center text-muted-foreground font-medium">LUNCH BREAK</div>
+                    </div>
+                    <div class="calendar-cell bg-muted/30">
+                        <div class="text-xs text-center text-muted-foreground font-medium">LUNCH BREAK</div>
+                    </div>
+                    <div class="calendar-cell bg-muted/30">
+                        <div class="text-xs text-center text-muted-foreground font-medium">LUNCH BREAK</div>
+                    </div>
+                    
+                    <!-- 1:00 PM Row -->
+                    <div class="time-slot">1:00 PM</div>
+                    <div class="calendar-cell">
+                        <div class="course-vac text-xs p-2 rounded text-white cursor-move hover:opacity-80 transition-opacity" draggable="true">
+                            <div class="font-medium">VAC-1</div>
+                            <div class="opacity-75">Room: E202</div>
+                        </div>
+                    </div>
+                    <div class="calendar-cell">
+                        <div class="course-skill text-xs p-2 rounded text-white cursor-move hover:opacity-80 transition-opacity" draggable="true">
+                            <div class="font-medium">Communication</div>
+                            <div class="opacity-75">Room: F105</div>
+                        </div>
+                    </div>
+                    <div class="calendar-cell">
+                        <div class="course-minor text-xs p-2 rounded text-white cursor-move hover:opacity-80 transition-opacity" draggable="true">
+                            <div class="font-medium">Statistics</div>
+                            <div class="opacity-75">Room: B206</div>
+                        </div>
+                    </div>
+                    <div class="calendar-cell">
+                        <div class="course-aec text-xs p-2 rounded text-white cursor-move hover:opacity-80 transition-opacity" draggable="true">
+                            <div class="font-medium">Environmental Science</div>
+                            <div class="opacity-75">Room: D105</div>
+                        </div>
+                    </div>
+                    <div class="calendar-cell"></div>
+                </div>
+            </div>
+            
+            <!-- Statistics Panel -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+                <div class="bg-card border border-border rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-chart-2">0</div>
+                    <div class="text-sm text-muted-foreground">Conflicts</div>
+                </div>
+                <div class="bg-card border border-border rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-chart-1">94%</div>
+                    <div class="text-sm text-muted-foreground">Student Satisfaction</div>
+                </div>
+                <div class="bg-card border border-border rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-chart-3">87%</div>
+                    <div class="text-sm text-muted-foreground">Room Utilization</div>
+                </div>
+                <div class="bg-card border border-border rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-chart-4">Good</div>
+                    <div class="text-sm text-muted-foreground">Faculty Balance</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="py-20 px-6 bg-gradient-to-r from-primary/10 to-chart-3/10">
+        <div class="container mx-auto text-center max-w-4xl">
+            <h2 class="text-4xl font-bold mb-6">Ready to Transform Your Academic Scheduling?</h2>
+            <p class="text-xl text-muted-foreground mb-8">
+                Join hundreds of educational institutions already using EduTime AI to create better timetables with less effort.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <button class="bg-primary text-primary-foreground px-8 py-4 rounded-lg text-lg font-semibold hover:bg-primary/90 transition-colors w-full sm:w-auto" onclick="showLoginModal()">
+                    Start Your Free Trial
+                </button>
+                <button class="border border-border text-foreground px-8 py-4 rounded-lg text-lg font-semibold hover:bg-accent/50 transition-colors w-full sm:w-auto" onclick="showContactModal()">
+                    Request Demo
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-card border-t border-border py-12 px-6">
+        <div class="container mx-auto max-w-6xl">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="md:col-span-2">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                            <i class="fas fa-graduation-cap text-primary-foreground"></i>
+                        </div>
+                        <span class="text-xl font-bold">EduTime AI</span>
+                    </div>
+                    <p class="text-muted-foreground mb-4 max-w-md">
+                        The most advanced AI-powered timetable generator designed specifically for NEP 2020 compliance and modern educational needs.
+                    </p>
+                    <div class="flex items-center space-x-4">
+                        <a href="#" class="text-muted-foreground hover:text-foreground transition-colors">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-muted-foreground hover:text-foreground transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-muted-foreground hover:text-foreground transition-colors">
+                            <i class="fab fa-youtube text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Product</h4>
+                    <ul class="space-y-2 text-muted-foreground">
+                        <li><a href="#" class="hover:text-foreground transition-colors">Features</a></li>
+                        <li><a href="#" class="hover:text-foreground transition-colors">Pricing</a></li>
+                        <li><a href="#" class="hover:text-foreground transition-colors">API</a></li>
+                        <li><a href="#" class="hover:text-foreground transition-colors">Integrations</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2 text-muted-foreground">
+                        <li><a href="#" class="hover:text-foreground transition-colors">Help Center</a></li>
+                        <li><a href="#" class="hover:text-foreground transition-colors">Contact</a></li>
+                        <li><a href="#" class="hover:text-foreground transition-colors">Status</a></li>
+                        <li><a href="#" class="hover:text-foreground transition-colors">Security</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-border pt-8 mt-8 text-center text-muted-foreground">
+                <p>&copy; 2024 EduTime AI. All rights reserved. | Privacy Policy | Terms of Service</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-card border border-border rounded-xl p-8 max-w-md w-full mx-4">
+            <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold mb-2">Login to EduTime AI</h3>
+                <p class="text-muted-foreground">Select your role to access your portal</p>
+            </div>
+            <div class="space-y-4 mb-6">
+                <button class="w-full bg-chart-1 text-white p-4 rounded-lg hover:bg-chart-1/90 transition-colors text-left" onclick="showAdminDemo()">
+                    <div class="flex items-center">
+                        <i class="fas fa-user-shield text-2xl mr-4"></i>
+                        <div>
+                            <div class="font-semibold">Admin Portal</div>
+                            <div class="text-sm opacity-75">Complete system management</div>
+                        </div>
+                    </div>
+                </button>
+                <button class="w-full bg-chart-2 text-white p-4 rounded-lg hover:bg-chart-2/90 transition-colors text-left" onclick="showFacultyDemo()">
+                    <div class="flex items-center">
+                        <i class="fas fa-chalkboard-teacher text-2xl mr-4"></i>
+                        <div>
+                            <div class="font-semibold">Faculty Portal</div>
+                            <div class="text-sm opacity-75">Manage your schedule & workload</div>
+                        </div>
+                    </div>
+                </button>
+                <button class="w-full bg-chart-3 text-white p-4 rounded-lg hover:bg-chart-3/90 transition-colors text-left" onclick="showStudentDemo()">
+                    <div class="flex items-center">
+                        <i class="fas fa-user-graduate text-2xl mr-4"></i>
+                        <div>
+                            <div class="font-semibold">Student Portal</div>
+                            <div class="text-sm opacity-75">View courses & timetables</div>
+                        </div>
+                    </div>
+                </button>
+            </div>
+            <button class="w-full bg-muted text-muted-foreground py-2 rounded-lg hover:bg-muted/80 transition-colors" onclick="hideLoginModal()">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Modal functions
+        function showLoginModal() {
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+        
+        function hideLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+        
+        // Demo functions - these would redirect to actual portals in a real app
+        function showAdminDemo() {
+            alert('Admin Demo: This would redirect to the admin dashboard with full system management capabilities including student/faculty management, timetable generation, and analytics.');
+            hideLoginModal();
+        }
+        
+        function showFacultyDemo() {
+            alert('Faculty Demo: This would redirect to the faculty portal showing personal timetables, workload tracking, availability management, and swap requests.');
+            hideLoginModal();
+        }
+        
+        function showStudentDemo() {
+            alert('Student Demo: This would redirect to the student portal for course preferences, personalized timetables, credit validation, and calendar export.');
+            hideLoginModal();
+        }
+        
+        function showDemoModal() {
+            alert('Video Demo: This would show a guided tour of all features including AI timetable generation, conflict resolution, and multi-role portals.');
+        }
+        
+        function showContactModal() {
+            alert('Contact Demo: This would open a contact form for scheduling a personalized demo with our team.');
+        }
+        
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Basic drag and drop functionality for calendar demo
+        document.addEventListener('DOMContentLoaded', function() {
+            let draggedElement = null;
+            
+            // Add drag event listeners to course blocks
+            document.querySelectorAll('[draggable="true"]').forEach(element => {
+                element.addEventListener('dragstart', function(e) {
+                    draggedElement = this;
+                    this.style.opacity = '0.5';
+                });
+                
+                element.addEventListener('dragend', function(e) {
+                    this.style.opacity = '1';
+                    draggedElement = null;
+                });
+            });
+            
+            // Add drop zones
+            document.querySelectorAll('.calendar-cell').forEach(cell => {
+                cell.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    if (!this.querySelector('[draggable="true"]')) {
+                        this.style.backgroundColor = 'var(--accent)';
+                    }
+                });
+                
+                cell.addEventListener('dragleave', function(e) {
+                    this.style.backgroundColor = '';
+                });
+                
+                cell.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.style.backgroundColor = '';
+                    
+                    if (draggedElement && !this.querySelector('[draggable="true"]')) {
+                        // Move the element
+                        this.appendChild(draggedElement);
+                        
+                        // Show a success message
+                        const notification = document.createElement('div');
+                        notification.className = 'fixed top-4 right-4 bg-chart-2 text-white px-4 py-2 rounded-lg z-50';
+                        notification.textContent = 'Course moved successfully! Checking for conflicts...';
+                        document.body.appendChild(notification);
+                        
+                        setTimeout(() => {
+                            notification.remove();
+                        }, 3000);
+                    }
+                });
+            });
+        });
+        
+        // Close modal when clicking outside
+        document.getElementById('loginModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideLoginModal();
+            }
+        });
+    </script>
+</body>
+</html>

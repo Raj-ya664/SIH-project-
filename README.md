@@ -1,18 +1,25 @@
-# 🚀 Project Name
+# 🗓️ Time-Table-Generator-AI
 
-A brief description of your project goes here. Explain what it does and why it’s useful.
+AI-powered timetable generator web app.
 
 ---
 
-## 📂 Clone the Repository
+## 📥 Installation & Setup
 
-To get a local copy of the project up and running, follow these steps:
+Follow these steps to run the project locally:
 
 ```bash
-# Clone the repository
-git clone 
+# 1. Clone the repository
+git clone https://github.com/Raj-ya664/SIH-project-.git
 
-# Navigate into the project directory
-cd 
+# 2. Move into the project folder
+cd Time-Table-Genrator-AI
+
+# 3. Install dependencies
+npm install
+
+# 4. Start the development server
+npm run dev
+
 
 
